@@ -1,0 +1,19 @@
+file tp3
+
+display Sudoku
+display buffer
+display $x0
+display $x1
+display $x19
+display $x20
+display $x21
+display $x22
+
+break LireSudoku
+break tp3.as:38
+break tp3.as:61
+break LireSudoku_LoopEnd
+
+#set args tests/easy1
+
+run < ./tests/easy1
