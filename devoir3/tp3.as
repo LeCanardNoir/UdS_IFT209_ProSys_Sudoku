@@ -71,16 +71,16 @@ LireSudoku_LoopEnd:
 AfficherSudoku:
         SAVE
 		mov		x20, x0
-		mov		x19, #1
-		mov		x18, #1
+		mov		x19, #0
+		mov		x21, #3
 
 AfficherSudoku_line:
-		cmp		x18, #3
-		b.le	AfficherSudoku_Loop
+		cmp		x21, #3
+		b.lt	AfficherSudoku_Loop
 		adr		x0, ptfmt1
 		ldr		x1, [x0]
 		bl		printf
-		mov		x18, #0
+		mov		x21, #0
 		
 AfficherSudoku_Loop:
 		cmp		x19, #9
@@ -103,7 +103,8 @@ AfficherSudoku_Loop:
 		ldrb	w2, [x20], #1
 		ldrb	w3, [x20], #1
 		bl		printf
-		add		x18, x18, #1
+
+		add		x21, x21, #1
 		add		x19, x19, #1
 		b.al	AfficherSudoku_line
 
