@@ -15,5 +15,6 @@ break tp3.as:61
 break LireSudoku_LoopEnd
 
 #set args tests/easy1
+layout asm
 
 run < ./tests/easy1
