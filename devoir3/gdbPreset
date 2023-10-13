@@ -1,15 +1,14 @@
 file tp3
 
-display $x0
 display $x23
 display $x24
-display $x25
-display $x26
-display $x27
-display $w10
-display $w11
-display $w12
-display $w13
+display $w25
+display $w26
+display $w27
+display $x10
+display $x11
+display $x12
+display $x13
 
 #break VerifierSudoku
 #break VerifierSudoku_BigLoop
