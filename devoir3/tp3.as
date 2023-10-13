@@ -130,31 +130,55 @@ VerifierSudoku_BigLoop:
 
 		mov		x9, #9					// Initialisation de l'index de tab_col
 		udiv	x26, x23, x9			// Initialiser l'index de tab_col	x26 <= (Y) = x23 / 9
+		
 
 										// Initialisation de l'index de tab_bloc (X)
 		mov		x0, x25					// Paramètre d'entrée nombre1 pour Fonction_ceil
 		mov		x1, #3					// Paramètre d'entrée nombre2 pour Fonction_ceil 
 		bl		Fonction_ceil			// Appelle le sous-programme Fonction_ceil x25 / 3 
-		sub		x27, x0, #3				// Initialiser l'index de tab_bloc	x27 <= (X) = x0 - 3
+		mov		x27, x0					// Initialiser l'index de tab_bloc	x27 <= (X) = x0
 
 										// Initialisation de l'index de tab_bloc (Y)
 		mov		x0, x26					// Paramètre d'entrée nombre1 pour Fonction_ceil
 		mov		x1, #3					// Paramètre d'entrée nombre2 pour Fonction_ceil 
 		bl		Fonction_ceil			// Appelle le sous-programme Fonction_ceil x25 / 3 
-		mul		x11, x0, #3				// Initialiser l'index de tab_bloc	x11 <= (Y)
+		mul		x11, x0, x1				// Initialiser l'index de tab_bloc	x11 <= (Y)
 		add		x27, x27, x11			// Initialiser l'index de tab_bloc	x27 <= (X,Y) = (X-3)+(Y*3)
+		//sub		x27, x27, #3			// Initialiser l'index de tab_bloc	x27 <= (X) = x0 - 3
+		//neg		x27, x27
 
-		mov		x24, #0					// Initialisation: boucle du secondaire de 0..9
 
-		ldrb	w9, [x19, x23]			// load sudoku value at index x23
+		
+		/*mul		x26, x26, x9
+		 mul		x25, x25, x9
+		mul		x26, x27, x9 */
+
+		ldrb	w10, [x20, #0]			// init tab_row value at index x25
+		ldrb	w11, [x21, #0]			// init tab_col value at index x26
+		ldrb	w12, [x22, #0]			// init tab_bloc value at index x27
 		ldrb	w10, [x20, x25]			// load tab_row value at index x25
 		ldrb	w11, [x21, x26]			// load tab_col value at index x26
-		ldrb	w12, [x22, x27]			// load tab_bloc value at index x26
+		ldrb	w12, [x22, x27]			// load tab_bloc value at index x27
+		ldrb	w13, [x19, x23]			// load sudoku value at index x23
 VerifierSudoku_SmallLoop:
+
+		ldrb	w10, [x20], #1			// load tab_row value ++
+		ldrb	w11, [x21],	#1			// load tab_col value ++
+		ldrb	w12, [x22], #1			// load tab_bloc value ++
 		
-		
+		add		x24, x24, #1
+		cmp		x24, #9
+		b.lt	VerifierSudoku_SmallLoop
+
+		mov		x24, #0					// Initialisation: boucle du secondaire de 0..9
 		add		x23, x23, #1
 		b.al	VerifierSudoku_BigLoop
+
+VerifierSudoku_BigLoopEnd:
+
+        RESTORE
+		ret
+
 /*
 Entrées:
 	x0: nombre1
@@ -180,12 +204,6 @@ Fonction_modulo:
 		mul 	x3, x1, x2				// x3 = x1 * floor(x0/x1)
 		sub		x0, x0, x3				// x0 <- x0 - x3 = x0 -(x1 * floor(x0/x1))
 		ret
-
-VerifierSudoku_BigLoopEnd:
-
-        RESTORE
-		ret
-
 
 
 .section ".rodata"

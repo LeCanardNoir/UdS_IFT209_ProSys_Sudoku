@@ -1,27 +1,24 @@
 file tp3
 
-display $x19
-display $x20
-display $x21
-display $x22
+display $x0
 display $x23
 display $x24
 display $x25
 display $x26
 display $x27
-display $w9
 display $w10
 display $w11
 display $w12
+display $w13
 
-break VerifierSudoku
-break VerifierSudoku_BigLoop
-break VerifierSudoku_BigLoopEnd
+#break VerifierSudoku
+#break VerifierSudoku_BigLoop
 break VerifierSudoku_SmallLoop
-break tp3.as:143
-break tp3.as:156
+#break VerifierSudoku_BigLoopEnd
+#break tp3.as:143
+break tp3.as:175
 
 #set args tests/easy1
-layout asm
+layout src
 
 run < ./tests/easy1
