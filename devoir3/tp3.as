@@ -114,7 +114,7 @@ AfficherSudoku_SkipNouvelleLigne:
 		add		x26, x26, #1
 		add		x19, x19, #1		//Incrémente l'index
 		b.al	AfficherSudoku_LoopCheck
-		
+
 AfficherSudoku_loopEnd:
 
         RESTORE
@@ -123,11 +123,94 @@ AfficherSudoku_loopEnd:
 
 VerifierSudoku:
         SAVE
+		mov		x20, x0				//x20 contient l'adresse du sudoku
+
+VerifierSudoku_Rangees:
+		//TODO Vérifier les rangées
+
+VerifierSudoku_Rangees_OuterLoop:
+		
+
+
+
+
+VerifierSudoku_Colonnes:
+		//TODO Vérifier les colonnes
+
+
+VerifierSudoku_Blocs:
+		//TODO Vérifier les blocs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
         RESTORE
+		ret
+
+/*
+	Remplit une array avec la valeur 0 dans chaque byte
+	Entrées:
+		x0: Adresse de l'array
+		x1: Taille de l'array (en byte)
+	Sorties:
+		x0: Adresse de l'array
+*/
+ViderArray:
+		mov		x2, #0				//x2 contient l'index
+ViderArray_LoopCheck:
+		cmp		x2, x1				//Si x2 < x1, continue
+		b.lt	ViderArray_LoopContent
+		b.al	ViderArray_LoopEnd
+ViderArray_LoopContent:
+		strb	wzr, [x0, x2]
+		add		x2, x2, #1			//index++
+		b.al	ViderArray_LoopCheck
+ViderArray_LoopEnd:
+		ret
+
+
+/*
+	Vérifie si l'array contient au moins une valeur 0, en ignorant l'index 0
+	Entrées:
+		x0: Adresse de l'array
+		x1: Taille de l'array (en byte)
+	Sorties:
+		x0: Adresse de l'array
+		x1: index qui a la valeur 0
+*/
+VerifierArray:
+		mov		x2, #1				//x2 contient l'index
+VerifierArray_LoopCheck:
+		cmp		x2, x1				//si index < taille, on continue
+		b.lt	VerifierArray_LoopContent
+		b.al	VerifierArray_LoopEnd
+VerifierArray_LoopContent:
+		ldr		w3, [x0, x2]
+		cbz		x3, VerifierArray_LoopEnd	//Si la valeur à l'index est 0, on sort de la boucle
+
+		add		x2, x2, #1
+		b.al	VerifierArray_LoopCheck
+VerifierArray_LoopEnd:
+		mov		x1, x2				//On met dans x1 l'index
 		ret
 
 
