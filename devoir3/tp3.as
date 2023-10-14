@@ -179,8 +179,8 @@ VerifierSudoku_Rangees_OuterLoopEnd:
 
 
 VerifierSudoku_Colonnes:
-		//TODO Vérifier les colonnes
 VerifierSudoku_Colonnes_OuterLoopInit:
+		mov		x19, #0				//Contient la valeur représentant quelle est la colonne courante
 		mov		x28, #0				//Contient index outerloop (ou)
 VerifierSudoku_Colonnes_OuterLoopCheck:
 		cmp		x28, #9
@@ -189,6 +189,8 @@ VerifierSudoku_Colonnes_OuterLoopCheck:
 VerifierSudoku_Colonnes_OuterLoopContent:
 VerifierSudoku_Colonnes_InnerLoopInit:
 		mov		x27, #0				//Contient index interloop (in)
+		mov		x26, #0				//Contient le "tableau binaire" de valeurs enregistrées
+		mov		x25, #0				//Contient le "tableau binaire" de valeurs dupliquées
 VerifierSudoku_Colonnes_InnerLoopCheck:
 		cmp		x27, #81
 		b.lt	VerifierSudoku_Colonnes_InnerLoopContent
@@ -196,14 +198,28 @@ VerifierSudoku_Colonnes_InnerLoopCheck:
 VerifierSudoku_Colonnes_InnerLoopContent:
 		add		x21, x27, x28		//x21 contient l'index dans le sudoku (ou+in)
 
-
-		//TODO faire un truc avec l'index
-
-
+		ldrb	w9, [x20, x21]		//x9 contient la valeur à l'emplacement du sudoku
+		mov		x10, #1
+		lsl		x10, x10, x9		//met (1 << x9) dans x10
+		and		x11, x26, x10		//x11 = 0 si x9 n'est pas dupliquée. Sinon, x11 = (1 << x9)
+		orr		x25, x25, x11		//On met dans le "tableau binaire" le résultat (si x9 est dupliqué)
+		orr		x26, x26, x10		//On ajoute la valeur au "tableau binaire" des valeurs enregistrées
 
 		add		x27, x27, #9
 		b.al	VerifierSudoku_Colonnes_InnerLoopCheck
 VerifierSudoku_Colonnes_InnerLoopEnd:
+
+		lsr		x26, x26, #1
+		lsl		x26, x26, #1		//On reset le bit 0 du "tableau binaire"
+		lsr		x25, x25, #1
+		lsl		x25, x25, #1		//On reset le bit 0 du "tableau binaire"
+
+		mov		x0, x25
+		mov		x1, x19
+		mov		x2, #0
+		bl		AfficherMessage_NombreDuplique
+
+		add		x19, x19, #1
 		add		x28, x28, #1
 		b.al	VerifierSudoku_Colonnes_OuterLoopCheck
 VerifierSudoku_Colonnes_OuterLoopEnd:
