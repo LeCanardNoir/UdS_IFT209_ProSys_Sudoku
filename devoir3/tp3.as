@@ -321,10 +321,44 @@ Fonction_Modulo:
 		message dans la console
 */
 AfficherMessage_NombreDuplique:
+		SAVE
+		cmp		x0, #0					//Si le tableau est vide, on "return" la fonction sans rien faire de plus. Sinon, on continue
+		b.eq	AfficherMessage_NombreDuplique_End
 
-		//TODO
+		mov		x20, x0					//On met le "tableau binaire" dans x20
+		mov		x21, x1					//On met le numéro de rangée/colonne/bloc dans x21
+		mov		x22, x2					//On met x2 dans x22
 
+AfficherMessage_NombreDuplique_LoopInit:
+		mov		x19, #1
+AfficherMessage_NombreDuplique_LoopCheck:
+		lsr		x20, x20, #1
+		cmp		x20, #0
+		b.eq	AfficherMessage_NombreDuplique_LoopEnd
+AfficherMessage_NombreDuplique_LoopContent:
+		and		x28, x20, #1
+		cmp		x28, #0
+		b.eq	AfficherMessage_NombreDuplique_LoopContent_afterIf
+AfficherMessage_NombreDuplique_LoopContent_if:
+		mov		x0, ptfmt5
+		mov		x1, x19
+		bl		printf
+		
+		cmp		x22, #0
+		csel	x0, ptfmt6, x0, eq
+		cmp		x22, #1
+		csel	x0, ptfmt7, x0, eq
+		cmp		x22, #2
+		csel	x0, ptfmt8, x0, eq
+		mov		x1, x21
+		bl		printf
 
+AfficherMessage_NombreDuplique_LoopContent_afterIf:
+		add		x19, x19, #1
+		b.al	AfficherMessage_NombreDuplique_LoopCheck
+AfficherMessage_NombreDuplique_LoopEnd:
+AfficherMessage_NombreDuplique_End:
+		RESTORE
 		ret
 
 
@@ -336,6 +370,11 @@ ptfmt1:     .asciz	"|-------|-------|-------|\n"
 ptfmt2:		.asciz	"%d "
 ptfmt3:		.asciz	"| "
 ptfmt4:		.asciz	"|\n"
+ptfmt5:		.asciz	"Le chiffre %d est present plus d'une fois dans "
+ptfmt6:		.asciz	"la rangee %d.\n"
+ptfmt7:		.asciz	"la colonne %d.\n"
+ptfmt8:		.asciz	"le bloc %d.\n"
+
 
 .section ".bss"
 
