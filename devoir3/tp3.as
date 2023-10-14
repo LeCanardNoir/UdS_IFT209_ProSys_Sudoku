@@ -125,93 +125,138 @@ VerifierSudoku:
         SAVE
 		mov		x20, x0				//x20 contient l'adresse du sudoku
 
-VerifierSudoku_Rangees:
-		//TODO Vérifier les rangées
 
-VerifierSudoku_Rangees_OuterLoop:
-		
+
+VerifierSudoku_Rangees:
+VerifierSudoku_Rangees_OuterLoopInit:
+		mov		x28, #0				//Contient index outerloop (ou)
+VerifierSudoku_Rangees_OuterLoopCheck:
+		cmp		x28, #81
+		b.lt	VerifierSudoku_Rangees_OuterLoopContent
+		b.al	VerifierSudoku_Rangees_OuterLoopEnd
+VerifierSudoku_Rangees_OuterLoopContent:
+VerifierSudoku_Rangees_InnerLoopInit:
+		mov		x27, #0				//Contient index innerloop (in)
+VerifierSudoku_Rangees_InnerLoopCheck:
+		cmp		x27, #9
+		b.lt	VerifierSudoku_Rangees_InnerLoopContent
+		b.al	VerifierSudoku_Rangees_InnerLoopEnd
+VerifierSudoku_Rangees_InnerLoopContent:
+		add		x21, x27, x28		//x21 contient l'index dans le sudoku (ou+in)
+
+
+		//TODO faire un truc avec l'index
+
+
+
+		add		x27, x27, #1
+		b.al	VerifierSudoku_Rangees_InnerLoopCheck
+VerifierSudoku_Rangees_InnerLoopEnd:
+		add		x28, x28, #9
+		b.al	VerifierSudoku_Rangees_OuterLoopCheck
+VerifierSudoku_Rangees_OuterLoopEnd:
+
+
 
 
 
 
 VerifierSudoku_Colonnes:
 		//TODO Vérifier les colonnes
+VerifierSudoku_Colonnes_OuterLoopInit:
+		mov		x28, #0				//Contient index outerloop (ou)
+VerifierSudoku_Colonnes_OuterLoopCheck:
+		cmp		x28, #9
+		b.lt	VerifierSudoku_Colonnes_OuterLoopContent
+		b.al	VerifierSudoku_Colonnes_OuterLoopEnd
+VerifierSudoku_Colonnes_OuterLoopContent:
+VerifierSudoku_Colonnes_InnerLoopInit:
+		mov		x27, #0				//Contient index interloop (in)
+VerifierSudoku_Colonnes_InnerLoopCheck:
+		cmp		x27, #81
+		b.lt	VerifierSudoku_Colonnes_InnerLoopContent
+		b.al	VerifierSudoku_Colonnes_InnerLoopEnd
+VerifierSudoku_Colonnes_InnerLoopContent:
+		add		x21, x27, x28		//x21 contient l'index dans le sudoku (ou+in)
+
+
+		//TODO faire un truc avec l'index
+
+
+
+		add		x27, x27, #9
+		b.al	VerifierSudoku_Colonnes_InnerLoopCheck
+VerifierSudoku_Colonnes_InnerLoopEnd:
+		add		x28, x28, #1
+		b.al	VerifierSudoku_Colonnes_OuterLoopCheck
+VerifierSudoku_Colonnes_OuterLoopEnd:
+
+
+
+
 
 
 VerifierSudoku_Blocs:
-		//TODO Vérifier les blocs
+VerifierSudoku_Blocs_OuterLoopInit:
+		mov		x28, #0				//Contient index outerloop (ou)
+VerifierSudoku_Blocs_OuterLoopCheck:
+		cmp		x28, #81
+		b.lt	VerifierSudoku_Blocs_OuterLoopContent
+		b.al	VerifierSudoku_Blocs_OuterLoopEnd
+VerifierSudoku_Blocs_OuterLoopContent:
+VerifierSudoku_Blocs_InnerLoopInit:
+		mov		x27, #0				//Contient index innerloop (in)
+VerifierSudoku_Blocs_InnerLoopCheck:
+		cmp		x27, #27
+		b.lt	VerifierSudoku_Blocs_InnerLoopContent
+		b.al	VerifierSudoku_Blocs_InnerLoopEnd
+VerifierSudoku_Blocs_InnerLoopContent:
+		add		x21, x27, x28		//x21 contient l'index dans le sudoku (ou+in)
+
+
+		//TODO faire un truc avec l'index
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		mov		x0, x27
+		mov		x1, #3
+		bl		Fonction_Modulo
+		mov		x9, x0				//x9 contient in mod 3
+		add		x14, x27, #1		//x14 contient in+1
+		add		x15, x27, #7		//x15 contient in+7
+		cmp		x9, #2
+		csel	x27, x15, x14, eq
+		b.al	VerifierSudoku_Blocs_InnerLoopCheck
+VerifierSudoku_Blocs_InnerLoopEnd:
+		mov		x0, x28
+		mov		x1, #9
+		bl		Fonction_Modulo
+		mov		x9, x0
+		add		x14, x28, #3
+		add		x15, x28, #21
+		cmp		x9, #6
+		csel	x28, x15, x14, eq
+		b.al	VerifierSudoku_Blocs_OuterLOopCheck
+VerifierSudoku_Blocs_OuterLoopEnd:
         RESTORE
 		ret
 
+
 /*
-	Remplit une array avec la valeur 0 dans chaque byte
 	Entrées:
-		x0: Adresse de l'array
-		x1: Taille de l'array (en byte)
+		x0: nombre1
+		x1: nombre2
 	Sorties:
-		x0: Adresse de l'array
+		x0: nombre1 modulo nombre2
 */
-ViderArray:
-		mov		x2, #0				//x2 contient l'index
-ViderArray_LoopCheck:
-		cmp		x2, x1				//Si x2 < x1, continue
-		b.lt	ViderArray_LoopContent
-		b.al	ViderArray_LoopEnd
-ViderArray_LoopContent:
-		strb	wzr, [x0, x2]
-		add		x2, x2, #1			//index++
-		b.al	ViderArray_LoopCheck
-ViderArray_LoopEnd:
+Fonction_Modulo:
+		udiv	x2, x0, x1				// x2 = floor(x0/x1)
+		mul		x3, x1, x2				// x3 = x1 * floor(x0/x1)
+		sub		x0, x0, x3				// x0 <- x0 - x3 = x0 - (x1 * floor(x0/x1)) 
 		ret
 
 
-/*
-	Vérifie si l'array contient au moins une valeur 0, en ignorant l'index 0
-	Entrées:
-		x0: Adresse de l'array
-		x1: Taille de l'array (en byte)
-	Sorties:
-		x0: Adresse de l'array
-		x1: index qui a la valeur 0
-*/
-VerifierArray:
-		mov		x2, #1				//x2 contient l'index
-VerifierArray_LoopCheck:
-		cmp		x2, x1				//si index < taille, on continue
-		b.lt	VerifierArray_LoopContent
-		b.al	VerifierArray_LoopEnd
-VerifierArray_LoopContent:
-		ldr		w3, [x0, x2]
-		cbz		x3, VerifierArray_LoopEnd	//Si la valeur à l'index est 0, on sort de la boucle
 
-		add		x2, x2, #1
-		b.al	VerifierArray_LoopCheck
-VerifierArray_LoopEnd:
-		mov		x1, x2				//On met dans x1 l'index
-		ret
 
 
 .section ".rodata"
