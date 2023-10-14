@@ -130,12 +130,12 @@ VerifierSudoku_BigLoop:
 		bl		Fonction_modulo			// Appelle le sous-programme Fonction_modulo	x23 % 9
 		mov		x25, x0					// Initialiser l'index de tab_col	x25 <= (X)
 		mul		x1, x25, x9
-		add		x10, x20, x1			// init tab_col value at index x25
+		add		x11, x21, x1			// init tab_col value at index x25
 
 
 		udiv	x26, x23, x9			// Initialiser l'index de tab_row	x26 <= (Y) = x23 / 9
 		mul		x1, x26, x9
-		add		x11, x21, x1			// init tab_row value at index x26
+		add		x10, x20, x1			// init tab_row value at index x26
 		
 
 										// Initialisation de l'index de tab_bloc (X)
@@ -154,16 +154,14 @@ VerifierSudoku_BigLoop:
 		add		x12, x22, x1			// init tab_bloc value at index x27
 
 
-		sub		x1, x11, x21
-
-		sub		x2, x10, x20
-
-		sub		x3, x12, x22
+		sub		x1, x10, x20			// tab_row[x] address at x10 - x20
+		sub		x2, x11, x21			// tab_col[x] address at x10 - x20
+		sub		x3, x12, x22			// tab_bloc[x] address at x10 - x20
 
 VerifierSudoku_SmallLoop:
 
-		ldrb	w26, [x11],	#1			// load tab_row  value ++
-		ldrb	w25, [x10], #1			// load tab_col value ++
+		ldrb	w25, [x10],	#1			// load tab_row  value ++
+		ldrb	w26, [x11], #1			// load tab_col value ++
 		ldrb	w27, [x12], #1			// load tab_bloc value ++
 		
 		add		x24, x24, #1
