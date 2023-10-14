@@ -344,12 +344,18 @@ AfficherMessage_NombreDuplique_LoopContent_if:
 		mov		x1, x19
 		bl		printf
 		
+
+		mov		x9, ptfmt6
+		mov		x10, ptfmt7
+		mov		x11, ptfmt8
+
+
 		cmp		x22, #0
-		csel	x0, ptfmt6, x0, eq
+		csel	x0, x9, x0, eq
 		cmp		x22, #1
-		csel	x0, ptfmt7, x0, eq
+		csel	x0, x10, x0, eq
 		cmp		x22, #2
-		csel	x0, ptfmt8, x0, eq
+		csel	x0, x11, x0, eq
 		mov		x1, x21
 		bl		printf
 
