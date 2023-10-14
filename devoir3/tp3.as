@@ -98,7 +98,7 @@ AfficherSudoku_SkipLigneHorizontale:
 
 AfficherSudoku_SkipBarreVerticale:
 		adr		x0, ptfmt2
-		adr		x1, [x20], #1
+		ldr		x1, [x20], #1
 		bl		printf
 
 		cmp		x27, #9
@@ -289,7 +289,7 @@ VerifierSudoku_Blocs_InnerLoopEnd:
 		add		x15, x28, #21
 		cmp		x9, #6
 		csel	x28, x15, x14, eq
-		b.al	VerifierSudoku_Blocs_OuterLOopCheck
+		b.al	VerifierSudoku_Blocs_OuterLoopCheck
 VerifierSudoku_Blocs_OuterLoopEnd:
         RESTORE
 		ret
