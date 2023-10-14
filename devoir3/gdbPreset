@@ -1,21 +1,24 @@
 file tp3
 
 display $x23
+display $x1
+display $x2
+display $x3
 display $x24
-display $w25
-display $w26
-display $w27
-display $x10
-display $x11
-display $x12
-display $x13
+#display $w25
+#display $w26
+#display $w27
+#display $x10
+#display $x11
+#display $x12
+#display $x13
 
 #break VerifierSudoku
 #break VerifierSudoku_BigLoop
-break VerifierSudoku_SmallLoop
+#break VerifierSudoku_SmallLoop
 #break VerifierSudoku_BigLoopEnd
 #break tp3.as:143
-break tp3.as:175
+#break tp3.as:175
 
 #set args tests/easy1
 layout src

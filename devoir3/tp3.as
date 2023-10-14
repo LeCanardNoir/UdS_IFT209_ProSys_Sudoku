@@ -122,18 +122,20 @@ VerifierSudoku_BigLoop:
 		cmp		x23, #80				// Vérification: Limite de la boucle d'affichage du sudoku
 		b.gt	VerifierSudoku_BigLoopEnd
 
+
 		mov		x9, #9
-										// Initialisation de l'index de tab_row
+										// Initialisation de l'index de tab_col
 		mov		x0, x23					// Paramètre d'entrée nombre1 pour Fonction_modulo  
 		mov		x1, x9					// Paramètre d'entrée nombre2 pour Fonction_modulo
 		bl		Fonction_modulo			// Appelle le sous-programme Fonction_modulo	x23 % 9
-		mov		x25, x0					// Initialiser l'index de tab_row	x25 <= (X)
+		mov		x25, x0					// Initialiser l'index de tab_col	x25 <= (X)
 		mul		x1, x25, x9
-		add		x10, x20, x1			// init tab_row value at index x25
+		add		x10, x20, x1			// init tab_col value at index x25
 
-		udiv	x26, x23, x9			// Initialiser l'index de tab_col	x26 <= (Y) = x23 / 9
+
+		udiv	x26, x23, x9			// Initialiser l'index de tab_row	x26 <= (Y) = x23 / 9
 		mul		x1, x26, x9
-		add		x11, x21, x1			// init tab_col value at index x26
+		add		x11, x21, x1			// init tab_row value at index x26
 		
 
 										// Initialisation de l'index de tab_bloc (X)
@@ -147,21 +149,21 @@ VerifierSudoku_BigLoop:
 		mov		x1, #3					// Paramètre d'entrée nombre2 pour Fonction_ceil 
 		bl		Fonction_ceil			// Appelle le sous-programme Fonction_ceil x25 / 3 
 		mul		x1, x0, x1				// Initialiser l'index de tab_bloc	x11 <= (Y)
-		add		x1, x27, x1			// Initialiser l'index de tab_bloc	x27 <= (X,Y) = (X-3)+(Y*3)
+		add		x1, x27, x1				// Initialiser l'index de tab_bloc	x27 <= (X,Y) = (X-3)+(Y*3)
 		mul		x1, x1, x9
 		add		x12, x22, x1			// init tab_bloc value at index x27
-		//sub		x27, x27, #3			// Initialiser l'index de tab_bloc	x27 <= (X) = x0 - 3
-		//neg		x27, x27
 
 
-		
-		/*mul		x26, x26, x9
-		 mul		x25, x25, x9
-		mul		x26, x27, x9 */
+		sub		x1, x11, x21
+
+		sub		x2, x10, x20
+
+		sub		x3, x12, x22
+
 VerifierSudoku_SmallLoop:
 
-		ldrb	w25, [x10], #1			// load tab_row value ++
-		ldrb	w26, [x11],	#1			// load tab_col value ++
+		ldrb	w26, [x11],	#1			// load tab_row  value ++
+		ldrb	w25, [x10], #1			// load tab_col value ++
 		ldrb	w27, [x12], #1			// load tab_bloc value ++
 		
 		add		x24, x24, #1
