@@ -110,24 +110,25 @@ AfficherSudoku_LoopEnd:
 
 VerifierSudoku:
         SAVE
-		mov		x19, x0					// Paramètre: adresse du sudoku dans x19
-		adr		x20, tab_row			// Paramètre: adresse du tableau des rangés dans x20
-		adr		x21, tab_col			// Paramètre: adresse du tableau des colonnes dans x21
-		adr		x22, tab_bloc			// Paramètre: adresse du tableau des blocs dans x22
 
 		mov		x23, #0					// Initialisation: boucle du principal de 0..80
 		mov		x24, #0					// Initialisation: boucle du secondaire de 0..9
 
 VerifierSudoku_BigLoop:
+		adr		x19, Sudoku				// Paramètre: adresse du sudoku dans x19
+		adr		x20, tab_row			// Paramètre: adresse du tableau des rangés dans x20
+		adr		x21, tab_col			// Paramètre: adresse du tableau des colonnes dans x21
+		adr		x22, tab_bloc			// Paramètre: adresse du tableau des blocs dans x22
+
 		cmp		x23, #80				// Vérification: Limite de la boucle d'affichage du sudoku
 		b.gt	VerifierSudoku_BigLoopEnd
 
 
 		mov		x9, #9
 										// Initialisation de l'index de tab_col
-		mov		x0, x23					// Paramètre d'entrée nombre1 pour Fonction_modulo  
-		mov		x1, x9					// Paramètre d'entrée nombre2 pour Fonction_modulo
-		bl		Fonction_modulo			// Appelle le sous-programme Fonction_modulo	x23 % 9
+		mov		x0, x23					// Paramètre d'entrée nombre1 pour VerifierSudoku_modulo  
+		mov		x1, x9					// Paramètre d'entrée nombre2 pour VerifierSudoku_modulo
+		bl		VerifierSudoku_modulo			// Appelle le sous-programme VerifierSudoku_modulo	x23 % 9
 		mov		x25, x0					// Initialiser l'index de tab_col	x25 <= (X)
 		mul		x1, x25, x9
 		add		x11, x21, x1			// init tab_col value at index x25
@@ -139,15 +140,15 @@ VerifierSudoku_BigLoop:
 		
 
 										// Initialisation de l'index de tab_bloc (X)
-		mov		x0, x25					// Paramètre d'entrée nombre1 pour Fonction_ceil
-		mov		x1, #3					// Paramètre d'entrée nombre2 pour Fonction_ceil 
-		bl		Fonction_ceil			// Appelle le sous-programme Fonction_ceil x25 / 3 
+		mov		x0, x25					// Paramètre d'entrée nombre1 pour VerifierSudoku_ceil
+		mov		x1, #3					// Paramètre d'entrée nombre2 pour VerifierSudoku_ceil 
+		bl		VerifierSudoku_ceil			// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
 		mov		x27, x0					// Initialiser l'index de tab_bloc	x27 <= (X) = x0
 
 										// Initialisation de l'index de tab_bloc (Y)
-		mov		x0, x26					// Paramètre d'entrée nombre1 pour Fonction_ceil
-		mov		x1, #3					// Paramètre d'entrée nombre2 pour Fonction_ceil 
-		bl		Fonction_ceil			// Appelle le sous-programme Fonction_ceil x25 / 3 
+		mov		x0, x26					// Paramètre d'entrée nombre1 pour VerifierSudoku_ceil
+		mov		x1, #3					// Paramètre d'entrée nombre2 pour VerifierSudoku_ceil 
+		bl		VerifierSudoku_ceil			// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
 		mul		x1, x0, x1				// Initialiser l'index de tab_bloc	x11 <= (Y)
 		add		x1, x27, x1				// Initialiser l'index de tab_bloc	x27 <= (X,Y) = (X-3)+(Y*3)
 		mul		x1, x1, x9
@@ -155,25 +156,61 @@ VerifierSudoku_BigLoop:
 
 		mov		x9, #9
 
-		sub		x1, x10, x20
-		udiv	x1, x1, x9				// row index at (x10 - x20) / 9
+		sub		x3, x10, x20			// tab_row align index at (x10 - x20)
+		udiv	x3, x3, x9				// row ref
+		add		x3, x3, #1
 
-		sub		x2, x11, x21
-		udiv	x2, x2, x9				// row index at (x11 - x21) / 9
+		sub		x2, x11, x21			// tab_col align index at (x11 - x21)
+		udiv	x2, x2, x9				// column ref
+		add		x2, x2, #1
 
-		sub		x3, x12, x22
-		udiv	x3, x3, x9				// bloc index at (x12 - x22) / 9
+		sub		x22, x12, x22			// tab_bloc align index at (x12 - x22)
+		udiv	x22, x22, x9			// bloc ref
 
+		ldrsb	x1, [x19, x23]			// load Sudoku value at index x23
+
+
+		mov		x13, #0					// (row + col + bloc) repeat count
 
 VerifierSudoku_SmallLoop:
+		mov		x4, #0					// row repeat count
+		mov		x5, #0					// col repeat count
+		mov		x6, #0					// bloc repeat count
 
-		ldrb	w25, [x10],	#1			// load tab_row  value ++
-		ldrb	w26, [x11], #1			// load tab_col value ++
-		ldrb	w27, [x12], #1			// load tab_bloc value ++
+		cmp		x1, #0
+		b.eq	VerifierSudoku_BigLoopPass
+
+		ldrsb	x25, [x10],	#1			// load tab_row  value | index  ++
+		ldrsb	x9, [x19, x25]
+		cmp		x9, x1
+		csinc	x4, x4, x4, ne
+		csinc	x13, x13, x13, ne
+
+		ldrsb	x26, [x11], #1			// load tab_col value | index  ++
+		ldrsb	x9, [x19, x26]
+		cmp		x9, x1
+		csinc	x5, x5, x5, ne
+		csinc	x13, x13, x13, ne
+
+		ldrsb	x27, [x12], #1			// load tab_bloc value | index ++
+		ldrsb	x9, [x19, x27]			// load Sudoku value at index x27
+		cmp		x9, x1
+		csinc	x6, x6, x6, ne
+		csinc	x13, x13, x13, ne		
+
+		adr		x0, ptfmt4
+		cmp		x13, #3
+		b.le	VerifierSudoku_SmallLoopEnd		
+		bl		printf
+
+VerifierSudoku_SmallLoopEnd:
 		
-		add		x24, x24, #1
+		add		x24, x24, #1			// small loop index ++
 		cmp		x24, #9
 		b.lt	VerifierSudoku_SmallLoop
+
+
+VerifierSudoku_BigLoopPass:
 
 		mov		x24, #0					// Initialisation: boucle du secondaire de 0..9
 		add		x23, x23, #1
@@ -191,7 +228,7 @@ Entrées:
 Sortie:
 	x0: (nombre1 / nombre2) arrondi à la hausse
 */
-Fonction_ceil:
+VerifierSudoku_ceil:
 		neg		x0, x0
 		sdiv	x0, x0, x1
 		neg		x0, x0
@@ -204,12 +241,11 @@ Entrées:
 Sortie:
 	x0: nombre1 modulo nombre2
 */
-Fonction_modulo:
+VerifierSudoku_modulo:
 		udiv	x2, x0, x1				// x2 = floor(x0/x1)
 		mul 	x3, x1, x2				// x3 = x1 * floor(x0/x1)
 		sub		x0, x0, x3				// x0 <- x0 - x3 = x0 -(x1 * floor(x0/x1))
 		ret
-
 
 .section ".rodata"
 
@@ -217,6 +253,7 @@ scfmt1:     .asciz  "%d"
 
 ptfmt2:     .asciz	"| %d %d %d "
 ptfmt3:     .asciz	"| %d %d %d |\n"
+ptfmt4:		.asciz	"\n\nErreur avec le nombre %d aux coordonnées (%d, %d). Les Erreurs sont: \n%d dans la rangé, %d dans la colonne  et %d dans le bloc\n"
 
 .section ".bss"
 
