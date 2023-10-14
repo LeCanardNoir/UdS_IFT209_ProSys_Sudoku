@@ -231,6 +231,7 @@ VerifierSudoku_Colonnes_OuterLoopEnd:
 
 VerifierSudoku_Blocs:
 VerifierSudoku_Blocs_OuterLoopInit:
+		mov		x19, #0				//Contient la valeur représentant quelle est la colonne courante
 		mov		x28, #0				//Contient index outerloop (ou)
 VerifierSudoku_Blocs_OuterLoopCheck:
 		cmp		x28, #81
@@ -239,6 +240,8 @@ VerifierSudoku_Blocs_OuterLoopCheck:
 VerifierSudoku_Blocs_OuterLoopContent:
 VerifierSudoku_Blocs_InnerLoopInit:
 		mov		x27, #0				//Contient index innerloop (in)
+		mov		x26, #0				//Contient le "tableau binaire" de valeurs enregistrées
+		mov		x25, #0				//Contient le "tableau binaire" de valeurs dupliquées
 VerifierSudoku_Blocs_InnerLoopCheck:
 		cmp		x27, #27
 		b.lt	VerifierSudoku_Blocs_InnerLoopContent
@@ -247,7 +250,12 @@ VerifierSudoku_Blocs_InnerLoopContent:
 		add		x21, x27, x28		//x21 contient l'index dans le sudoku (ou+in)
 
 
-		//TODO faire un truc avec l'index
+		ldrb	w9, [x20, x21]		//x9 contient la valeur à l'emplacement du sudoku
+		mov		x10, #1
+		lsl		x10, x10, x9		//met (1 << x9) dans x10
+		and		x11, x26, x10		//x11 = 0 si x9 n'est pas dupliquée. Sinon, x11 = (1 << x9)
+		orr		x25, x25, x11		//On met dans le "tableau binaire" le résultat (si x9 est dupliqué)
+		orr		x26, x26, x10		//On ajoute la valeur au "tableau binaire" des valeurs enregistrées
 
 
 
@@ -261,6 +269,18 @@ VerifierSudoku_Blocs_InnerLoopContent:
 		csel	x27, x15, x14, eq
 		b.al	VerifierSudoku_Blocs_InnerLoopCheck
 VerifierSudoku_Blocs_InnerLoopEnd:
+
+		lsr		x26, x26, #1
+		lsl		x26, x26, #1		//On reset le bit 0 du "tableau binaire"
+		lsr		x25, x25, #1
+		lsl		x25, x25, #1		//On reset le bit 0 du "tableau binaire"
+
+		mov		x0, x25
+		mov		x1, x19
+		mov		x2, #0
+		bl		AfficherMessage_NombreDuplique
+		add		x19, x19, #1
+
 		mov		x0, x28
 		mov		x1, #9
 		bl		Fonction_Modulo
