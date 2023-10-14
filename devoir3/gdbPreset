@@ -20,8 +20,9 @@ delete
 #break VerifierSudoku_BigLoop
 #break VerifierSudoku_SmallLoop
 #break VerifierSudoku_BigLoopEnd
-break tp3.as:167
+break tp3.as:174
 #break tp3.as:175
+
 
 #set args tests/easy1
 layout src

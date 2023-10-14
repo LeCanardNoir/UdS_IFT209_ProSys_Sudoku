@@ -153,10 +153,17 @@ VerifierSudoku_BigLoop:
 		mul		x1, x1, x9
 		add		x12, x22, x1			// init tab_bloc value at index x27
 
+		mov		x9, #9
 
-		sub		x1, x10, x20			// tab_row[x] address at x10 - x20
-		sub		x2, x11, x21			// tab_col[x] address at x10 - x20
-		sub		x3, x12, x22			// tab_bloc[x] address at x10 - x20
+		sub		x1, x10, x20
+		udiv	x1, x1, x9				// row index at (x10 - x20) / 9
+
+		sub		x2, x11, x21
+		udiv	x2, x2, x9				// row index at (x11 - x21) / 9
+
+		sub		x3, x12, x22
+		udiv	x3, x3, x9				// bloc index at (x12 - x22) / 9
+
 
 VerifierSudoku_SmallLoop:
 
