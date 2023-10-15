@@ -121,105 +121,103 @@ VerifierSudoku_BigLoop:
 		adr		x22, tab_bloc			// Paramètre: adresse du tableau des blocs dans x22
 
 		cmp		x23, #80				// Vérification: Limite de la boucle d'affichage du sudoku
-		b.gt	VerifierSudoku_BigLoopEnd
+		b.gt	VerifierSudoku_BigLoopEnd // Sortie de la boucle
 
 
-		mov		x9, #9
-										// Initialisation de l'index de tab_col
+		mov		x9, #9					// Constante nombre 9
+		
+		// Initialisation de l'index de tab_col
 		mov		x0, x23					// Paramètre d'entrée nombre1 pour VerifierSudoku_modulo  
 		mov		x1, x9					// Paramètre d'entrée nombre2 pour VerifierSudoku_modulo
-		bl		VerifierSudoku_modulo			// Appelle le sous-programme VerifierSudoku_modulo	x23 % 9
+		bl		VerifierSudoku_modulo	// Appelle le sous-programme VerifierSudoku_modulo	x23 % 9
 		mov		x25, x0					// Initialiser l'index de tab_col	x25 <= (X)
-		mul		x1, x25, x9
-		add		x11, x21, x1			// init tab_col value at index x25
+		mul		x1, x25, x9				// Ajustement de l'alignement de l'index x25 * 9 bits
+		add		x11, x21, x1			// Récupérer l'adresse courante de tab_col
+		sub		x2, x11, x21			// Récupérer la référence courante de la colonne
+		udiv	x2, x2, x9				// Ajuster la référence courante de la colonne / 9 => (0..8)
+		add		x2, x2, #1				// Ajuster la référence courante de la colonne + 1 => (1..9)
 
-
+		// Initialisation l'index de tab_row
 		udiv	x26, x23, x9			// Initialiser l'index de tab_row	x26 <= (Y) = x23 / 9
-		mul		x1, x26, x9
-		add		x10, x20, x1			// init tab_row value at index x26
+		mul		x1, x26, x9				// Ajustement de l'alignement de l'index x26 * 9 bits
+		add		x10, x20, x1			// Récupérer l'adresse courante de tab_row
+		sub		x3, x10, x20			// Récupérer la référence courante de la rangé
+		udiv	x3, x3, x9				// Ajuster la référence courante de la rangé / 9 => (0..8)
+		add		x3, x3, #1				// Ajuster la référence courante de la rangé + 1 => (1..9)
 		
 
-										// Initialisation de l'index de tab_bloc (X)
+		// Initialisation de l'index de tab_bloc (X)
 		mov		x0, x25					// Paramètre d'entrée nombre1 pour VerifierSudoku_ceil
 		mov		x1, #3					// Paramètre d'entrée nombre2 pour VerifierSudoku_ceil 
-		bl		VerifierSudoku_ceil			// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
+		bl		VerifierSudoku_ceil		// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
 		mov		x27, x0					// Initialiser l'index de tab_bloc	x27 <= (X) = x0
 
-										// Initialisation de l'index de tab_bloc (Y)
+		// Initialisation de l'index de tab_bloc (Y)
 		mov		x0, x26					// Paramètre d'entrée nombre1 pour VerifierSudoku_ceil
 		mov		x1, #3					// Paramètre d'entrée nombre2 pour VerifierSudoku_ceil 
-		bl		VerifierSudoku_ceil			// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
+		bl		VerifierSudoku_ceil		// Appelle le sous-programme VerifierSudoku_ceil x25 / 3 
 		mul		x1, x0, x1				// Initialiser l'index de tab_bloc	x11 <= (Y)
 		add		x1, x27, x1				// Initialiser l'index de tab_bloc	x27 <= (X,Y) = (X-3)+(Y*3)
-		mul		x1, x1, x9
-		add		x12, x22, x1			// init tab_bloc value at index x27
+		mul		x1, x1, x9				// Ajustement de l'alignement de l'index x27 * 9 bits
+		add		x12, x22, x1			// Récupérer l'adresse courante de tab_bloc
 
-		mov		x9, #9
+		sub		x22, x12, x22			// Récupérer la référence courante du bloc
+		udiv	x22, x22, x9			// Ajuster la référence courante de la colonne / 9 => (0..8)
 
-		sub		x3, x10, x20			// tab_row align index at (x10 - x20)
-		udiv	x3, x3, x9				// row ref
-		add		x3, x3, #1
-
-		sub		x2, x11, x21			// tab_col align index at (x11 - x21)
-		udiv	x2, x2, x9				// column ref
-		add		x2, x2, #1
-
-		sub		x22, x12, x22			// tab_bloc align index at (x12 - x22)
-		udiv	x22, x22, x9			// bloc ref
-
-		ldrsb	x1, [x19, x23]			// load Sudoku value at index x23
+		ldrsb	x1, [x19, x23]			// Récupérer la valeur du sudoku à l'index x23
 
 
-		mov		x13, #0					// (row + col + bloc) repeat count
+		mov		x13, #0					// Compteur des répétitions (rangé, colonne et bloc)
 
-		mov		x4, #0					// row repeat count
-		mov		x5, #0					// col repeat count
-		mov		x6, #0					// bloc repeat count
+		mov		x4, #0					// Compteur des répétitions dans rangé
+		mov		x5, #0					// Compteur des répétitions dans colonne
+		mov		x6, #0					// Compteur des répétitions dans bloc
+
 VerifierSudoku_SmallLoop:
 
-		cmp		x1, #0
-		b.eq	VerifierSudoku_BigLoopPass
+		cmp		x1, #0					// Es-ce que la valeur du sudoku est égale à 0
+		b.eq	VerifierSudoku_BigLoopPass // Ne pas faire devérification
 
-		ldrsb	x25, [x10],	#1			// load tab_row  value | index  ++
-		ldrsb	x9, [x19, x25]
-		cmp		x9, x1
-		csinc	x4, x4, x4, ne
-		csinc	x13, x13, x13, ne
+		ldrsb	x25, [x10],	#1			// Récupérer l'index de la céllule de la rangé courante (tab_row ++)
+		ldrsb	x9, [x19, x25]			// Récupérer la valeur de la céllule du sudoku
+		cmp		x9, x1					// Verifier la correspondance des valeurs des cellules
+		csinc	x4, x4, x4, ne			// Si n'est pas égale compteur d'erreur par rangé ne change pas, sinon ++
+		csinc	x13, x13, x13, ne		// Si n'est pas égale compteur d'erreur total ne change pas, sinon ++
 
-		ldrsb	x26, [x11], #1			// load tab_col value | index  ++
-		ldrsb	x9, [x19, x26]
-		cmp		x9, x1
-		csinc	x5, x5, x5, ne
-		csinc	x13, x13, x13, ne
+		ldrsb	x26, [x11], #1			// Récupérer l'index de la céllule de la colonne courante (tab_col ++)
+		ldrsb	x9, [x19, x26]			// Récupérer la valeur de la céllule du sudoku
+		cmp		x9, x1					// Verifier la correspondance des valeurs des cellules
+		csinc	x5, x5, x5, ne			// Si n'est pas égale compteur d'erreur par colonne ne change pas, sinon ++
+		csinc	x13, x13, x13, ne		// Si n'est pas égale compteur d'erreur total ne change pas, sinon ++
 
-		ldrsb	x27, [x12], #1			// load tab_bloc value | index ++
-		ldrsb	x9, [x19, x27]			// load Sudoku value at index x27
-		cmp		x9, x1
-		csinc	x6, x6, x6, ne
-		csinc	x13, x13, x13, ne	
+		ldrsb	x27, [x12], #1			// Récupérer l'index de la céllule du bloc courante (tab_col ++)
+		ldrsb	x9, [x19, x27]			// Récupérer la valeur de la céllule du sudoku
+		cmp		x9, x1					// Verifier la correspondance des valeurs des cellules
+		csinc	x6, x6, x6, ne			// Si n'est pas égale compteur d'erreur par bloc ne change pas, sinon ++
+		csinc	x13, x13, x13, ne		// Si n'est pas égale compteur d'erreur total ne change pas, sinon ++
 
 VerifierSudoku_SmallLoopEnd:
 		
-		add		x24, x24, #1			// small loop index ++
-		cmp		x24, #9
-		b.lt	VerifierSudoku_SmallLoop
-		b.ge	VerifierSudoku_AfficheResult
+		add		x24, x24, #1			// Incrémenter l'index de la petite boucle (0..9) ++
+		cmp		x24, #9					// Vérifier si l'index est égale à 9
+		b.lt	VerifierSudoku_SmallLoop // si petite boucle pas fini, aller au début de la boucle
+		b.ge	VerifierSudoku_AfficheResult // si petite boucle fini, afficher 
 
 VerifierSudoku_AfficheResult:
-		adr		x0, ptfmt4
-		cmp		x13, #3
-		b.le	VerifierSudoku_BigLoopPass
-		sub		x4, x4, #1
-		sub		x5, x5, #1
-		sub		x6, x6, #1
-		bl		printf	
+		cmp		x13, #3					// Vérifier si il y a d'erreur
+		b.le	VerifierSudoku_BigLoopPass // si pas d'erreur aller à la fin de la grande boucle
+		adr		x0, ptfmt4				// Paramètre: adresse du message d'erreur
+		sub		x4, x4, #1				// Paramètre: référence de la rangé courante
+		sub		x5, x5, #1				// Paramètre: référence de la colonne courante
+		sub		x6, x6, #1				// Paramètre: référence du bloc courant
+		bl		printf					// Afficher le message d'erreur
 
 
 VerifierSudoku_BigLoopPass:
 
 		mov		x24, #0					// Initialisation: boucle du secondaire de 0..9
-		add		x23, x23, #1
-		b.al	VerifierSudoku_BigLoop
+		add		x23, x23, #1			// Incrémenter la grande boucle
+		b.al	VerifierSudoku_BigLoop	// recommencer la grande boucle
 
 VerifierSudoku_BigLoopEnd:
 
@@ -270,6 +268,6 @@ coord:		.skip 2
 .section ".data"
 
 tab_row:	.byte	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80
-tab_col:	.byte	0, 9, 18, 27, 36, 45, 54, 63, 72, 1, 10, 19, 28, 37, 46, 55, 66, 73, 2, 11, 20, 29, 38, 47, 56, 65, 74, 3, 12, 21, 30, 39, 48, 57, 66, 75, 4, 13, 22, 31, 40, 49, 58, 67, 76, 5, 14, 23, 32, 41, 50, 59, 68, 77, 6, 15, 24, 33, 42, 51, 60, 69, 78, 7, 16, 25, 34, 43, 52, 61, 70, 79, 8, 17, 26, 35, 44, 53, 62, 71, 80
+tab_col:	.byte	0, 9, 18, 27, 36, 45, 54, 63, 72, 1, 10, 19, 28, 37, 46, 55, 64, 73, 2, 11, 20, 29, 38, 47, 56, 65, 74, 3, 12, 21, 30, 39, 48, 57, 66, 75, 4, 13, 22, 31, 40, 49, 58, 67, 76, 5, 14, 23, 32, 41, 50, 59, 68, 77, 6, 15, 24, 33, 42, 51, 60, 69, 78, 7, 16, 25, 34, 43, 52, 61, 70, 79, 8, 17, 26, 35, 44, 53, 62, 71, 80
 tab_bloc:	.byte	0, 1, 2, 9, 10, 11, 18, 19, 20, 3, 4, 5, 12, 13, 14, 21, 22, 23, 6, 7, 8, 15, 16, 17, 24, 25, 26, 27, 28, 29, 36, 37, 38, 45, 46, 47, 30, 31, 32, 39, 40, 41, 48, 49, 50, 33, 34, 35, 42, 43, 44, 51, 52, 53, 54, 55, 56, 63, 64, 65, 72, 73, 74, 57, 58, 59, 66, 67, 68, 75, 76, 77, 60, 61, 62, 69, 70, 71, 78, 79, 80
 ptfmt1:     .asciz	"|-------|-------|-------|\n"
