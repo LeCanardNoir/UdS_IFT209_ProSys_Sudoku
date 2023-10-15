@@ -1,0 +1,17 @@
+file tp3
+
+undisplay
+display $x23
+display $x24
+display $x1
+display $x5
+display $x9
+display $x13
+display $x26
+
+delete
+break tp3.as:189
+
+layout src
+
+run < ./tests/Sudoku1
