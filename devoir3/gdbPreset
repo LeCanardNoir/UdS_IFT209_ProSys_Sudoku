@@ -4,26 +4,14 @@ undisplay
 display $x23
 display $x24
 display $x1
-display $x2
-display $x3
-display $x4
 display $x5
-display $x6
-#display $x10
-#display $x11
-#display $x12
-#display $x13
+display $x9
+display $x13
+display $x26
 
 delete
-#break VerifierSudoku
-#break VerifierSudoku_BigLoop
-#break VerifierSudoku_SmallLoop
-#break VerifierSudoku_BigLoopEnd
-break tp3.as:208
-#break tp3.as:175
+break tp3.as:189
 
-
-#set args tests/easy1
 layout src
 
-run < ./tests/easy1
+run < ./tests/Sudoku1

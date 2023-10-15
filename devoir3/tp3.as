@@ -172,10 +172,10 @@ VerifierSudoku_BigLoop:
 
 		mov		x13, #0					// (row + col + bloc) repeat count
 
-VerifierSudoku_SmallLoop:
 		mov		x4, #0					// row repeat count
 		mov		x5, #0					// col repeat count
 		mov		x6, #0					// bloc repeat count
+VerifierSudoku_SmallLoop:
 
 		cmp		x1, #0
 		b.eq	VerifierSudoku_BigLoopPass
@@ -196,18 +196,23 @@ VerifierSudoku_SmallLoop:
 		ldrsb	x9, [x19, x27]			// load Sudoku value at index x27
 		cmp		x9, x1
 		csinc	x6, x6, x6, ne
-		csinc	x13, x13, x13, ne		
-
-		adr		x0, ptfmt4
-		cmp		x13, #3
-		b.le	VerifierSudoku_SmallLoopEnd		
-		bl		printf
+		csinc	x13, x13, x13, ne	
 
 VerifierSudoku_SmallLoopEnd:
 		
 		add		x24, x24, #1			// small loop index ++
 		cmp		x24, #9
 		b.lt	VerifierSudoku_SmallLoop
+		b.ge	VerifierSudoku_AfficheResult
+
+VerifierSudoku_AfficheResult:
+		adr		x0, ptfmt4
+		cmp		x13, #3
+		b.le	VerifierSudoku_BigLoopPass
+		sub		x4, x4, #1
+		sub		x5, x5, #1
+		sub		x6, x6, #1
+		bl		printf	
 
 
 VerifierSudoku_BigLoopPass:
